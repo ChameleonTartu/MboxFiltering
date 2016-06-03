@@ -18,10 +18,14 @@ def search_for_phrases_in(questions, phrases):
 					phrases_count[phrase] += amount
 	return phrases_count 
 
-def search_for_questions(data, start_questions = ["How ", "Why ", "What ", "Where "]):
+def search_for_questions(data, filter_out_emails, start_questions = ["How ", "Why ", "What ", "Where "]):
 	questions = defaultdict(lambda: dict())
 	for index in range(data.shape[0]):
 		body = data.iloc[index].values[-1]
+		for email in filter_out_emails:
+			for m in re.finditer("<" + email  + ">", str(body)):
+				body = body[:m.start()]
+				break
 		message_from = data.iloc[index].values[1]
 		for m in re.finditer("<.+@.+>", message_from):
 			message_sender = message_from[m.start() + 1: m.end() - 1]
@@ -56,7 +60,7 @@ def main():
 			filter_out_emails = [line.strip() for line in filter_file]
 		
 		data = filter_data_by(filter_out_emails, data)
-		questions = search_for_questions(data)
+		questions = search_for_questions(data, filter_out_emails)
 		write_questions(questions)
 
 		if len(sys.argv) > 3:
