@@ -24,9 +24,11 @@ def search_for_questions(data, filter_out_emails, start_questions = ["How ", "Wh
 		body = str(data.iloc[index].values[-1])
 		for email in filter_out_emails:
 			email = str(email).strip()
+			if email[0:2] == "*@":
+				email = email[1:]
 			if len(email) > len(body):
 				break
-			for m in re.finditer("<" + email + ">", body):
+			for m in re.finditer(email, body):
 				body = body[:m.start()]
 				break
 		message_from = data.iloc[index].values[1]
