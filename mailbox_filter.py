@@ -20,7 +20,7 @@ def search_for_phrases_in(questions, phrases):
 
 def search_for_questions(data, start_questions = ["How ", "Why ", "What ", "Where "]):
 	questions = defaultdict(lambda: dict())
-	for index in xrange(data.shape[0]):
+	for index in range(data.shape[0]):
 		body = data.iloc[index].values[-1]
 		message_from = data.iloc[index].values[1]
 		for m in re.finditer("<.+@.+>", message_from):
@@ -47,7 +47,7 @@ def main():
 		data = pd.read_csv(sys.argv[1], sep = ",", header = None)
 		data.columns = ["subject", "from", "date", "body"]
 
-		with open(sys.argv[2], "rb") as filter_file:
+		with open(sys.argv[2], "r") as filter_file:
 			filter_out_emails = [line.strip() for line in filter_file]
 		
 		data = filter_data_by(filter_out_emails, data)
@@ -55,7 +55,7 @@ def main():
 
 		if len(sys.argv) > 3:
 			phrases = defaultdict(lambda: 0)
-			with open(sys.argv[3], "rb") as phrases_file:
+			with open(sys.argv[3], "r") as phrases_file:
 				phrases = [line.strip() for line in phrases_file]
 			phrases = search_for_phrases_in(questions, phrases)	
 			phrases_frame = pd.DataFrame(dict(phrases).items(), columns = ["phrase", "occurance"])
