@@ -3,6 +3,7 @@
 
 import mailbox
 import csv
+import sys
 
 # motherfucking recursion, because email is damn weird.
 # each payload can contain many other payloads, which can contain many *other* payloads
@@ -17,8 +18,16 @@ def more_payloads(message):
 			body = message.get_payload(decode=True)
 	return body
 
-with open("mbox.csv", "w") as outfile:
-	writer = csv.writer(outfile)
-	for message in mailbox.mbox('sample.mbox'):
-		body = more_payloads(message)
-		writer.writerow([message['subject'], message['from'], message['date'], body])
+def main():
+	# sys.argv[1] = "mbox.csv"
+	# sys.argv[2] = "sample.mbox"
+	if len(sys.argv) == 3:
+		with open(sys.argv[1], "w") as outfile:
+			writer = csv.writer(outfile)
+			for message in mailbox.mbox(sys.argv[2]):
+				body = more_payloads(message)
+				writer.writerow([message['subject'], message['from'], message['date'], body])
+
+
+if __name__ == "__main__":
+	main()
