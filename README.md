@@ -24,3 +24,11 @@ Arguments:
 ```python
 python mailbox_filter.py <result>.csv <filter_out_emails>.csv <phrases_in_questions>.csv <phrases_and_occurances>.csv
 ```
+
+The minimum required arguments:
+
+```python
+python mailbox_filter.py <result>.csv <filter_out_emails>.csv
+```
+
+Has side-effect automatically will produce FAQ.csv with list of questions now default words are How, Why, What, Where.

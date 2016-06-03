@@ -33,6 +33,11 @@ def search_for_questions(data, start_questions = ["How ", "Why ", "What ", "Wher
 		
 	return questions
 
+def write_questions(questions):
+	with open("FAQ.csv", "wb") as write_questions:
+		for client_mail, client_questions in questions.iteritems():
+			[write_questions.write(question + "\r\n") for question in client_questions.keys()]
+	return None
 
 def filter_data_by(filter_out_emails, data):
 	for email in filter_out_emails:
@@ -52,6 +57,7 @@ def main():
 		
 		data = filter_data_by(filter_out_emails, data)
 		questions = search_for_questions(data)
+		write_questions(questions)
 
 		if len(sys.argv) > 3:
 			phrases = defaultdict(lambda: 0)
@@ -62,7 +68,7 @@ def main():
 			file_name = "phrase_occurances.csv"
 			if len(sys.argv) > 4:
 				file_name = sys.argv[4]
-			phrases_frame = phrases_frame.sort(["phrase", "occurance"], ascending = [1, 1])
+			phrases_frame.sort(["phrase", "occurance"], ascending = [1, 1], inplace = True)
 			phrases_frame.to_csv(file_name, sep=",", index = False, header = True)
 
 if __name__ == "__main__":
