@@ -23,7 +23,7 @@ def search_for_questions(data, filter_out_emails, start_questions = ["How ", "Wh
 	for index in range(data.shape[0]):
 		body = data.iloc[index].values[-1]
 		for email in filter_out_emails:
-			for m in re.finditer("<" + email  + ">", str(body)):
+			for m in re.finditer(email.strip(), str(body)):
 				body = body[:m.start()]
 				break
 		message_from = data.iloc[index].values[1]
