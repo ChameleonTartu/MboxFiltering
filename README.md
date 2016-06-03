@@ -11,7 +11,7 @@ Arguments:
 python mailbox_transformer.py <input_content>.mbox <result>.csv
 ```
 
-For filtering (mailbox\_filtering.csv).
+For filtering (mailbox\_filte.py).
 
 - To use this scripts you need to have already created 
  
@@ -22,5 +22,5 @@ For filtering (mailbox\_filtering.csv).
 Arguments:
 
 ```python
-python mailbox_filtering.py <result>.csv <filter_out_emails>.csv <phrases_in_questions>.csv <phrases_and_occurances>.csv
+python mailbox_filter.py <result>.csv <filter_out_emails>.csv <phrases_in_questions>.csv <phrases_and_occurances>.csv
 ```
