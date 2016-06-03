@@ -7,13 +7,20 @@ For converting mbox to csv(mailbox\_transformer.py) mainly is used script: https
 
 Arguments:
 
-python mailbox\_transformer.py <input>.mbox <result>.csv
+```python
+python mailbox_transformer.py <input_content>.mbox <result>.csv
+```
 
 For filtering (mailbox\_filtering.csv).
 
-- To use this scripts you need to have already created <result>.csv
+- To use this scripts you need to have already created 
+ 
+```python
+<result>.csv
+```
 
 Arguments:
 
-python mailbox\_filtering.py <result>.csv <filter_out_emails>.csv <phrases_in_questions>.csv <phrases_and_occurances>.csv
-
+```python
+python mailbox_filtering.py <result>.csv <filter_out_emails>.csv <phrases_in_questions>.csv <phrases_and_occurances>.csv
+```
