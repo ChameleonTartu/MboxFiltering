@@ -22,9 +22,9 @@ def main():
 	# sys.argv[1] = "mbox.csv"
 	# sys.argv[2] = "sample.mbox"
 	if len(sys.argv) == 3:
-		with open(sys.argv[1], "w") as outfile:
+		with open(sys.argv[2], "wb") as outfile:
 			writer = csv.writer(outfile)
-			for message in mailbox.mbox(sys.argv[2]):
+			for message in mailbox.mbox(sys.argv[1]):
 				body = more_payloads(message)
 				writer.writerow([message['subject'], message['from'], message['date'], body])
 
