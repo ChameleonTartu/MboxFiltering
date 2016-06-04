@@ -8,6 +8,7 @@ import pandas as pd
 import sys
 import re
 from collections import defaultdict
+import csv
 
 def search_for_phrases_in(questions, phrases):
 	phrases_count = defaultdict(lambda: 0)
@@ -67,8 +68,9 @@ def main():
 		data = pd.read_csv(sys.argv[1], sep = ",", header = None)
 		data.columns = ["subject", "from", "date", "body"]
 
-		with open(sys.argv[2], "r") as filter_file:
-			filter_out_emails = [line.strip() for line in filter_file]
+		with open(sys.argv[2], "rb") as filter_file:
+			reader = csv.reader(filter_file, delimiter = ',')
+			filter_out_emails = [line[0].strip() for line in reader]
 		
 		data = filter_data_by(filter_out_emails, data)
 		questions = search_for_questions(data, filter_out_emails)
@@ -76,8 +78,9 @@ def main():
 
 		if len(sys.argv) > 3:
 			phrases = defaultdict(lambda: 0)
-			with open(sys.argv[3], "r") as phrases_file:
-				phrases = [line.strip() for line in phrases_file]
+			with open(sys.argv[3], "rb") as phrases_file:
+				reader = csv.reader(phrases_file, delimiter = ',')
+				phrases = [line[0].strip() for line in reader]
 			phrases = search_for_phrases_in(questions, phrases)	
 			phrases_frame = pd.DataFrame(dict(phrases).items(), columns = ["phrase", "occurance"])
 			file_name = "phrase_occurances.csv"
