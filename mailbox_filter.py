@@ -57,7 +57,7 @@ def write_questions(questions):
 def filter_data_by(filter_out_emails, data):
 	for email in filter_out_emails:
 		if email[0:2] == "*@":
-			email = email[1:]
+			email = str(email[1:]).strip()
 		data = data[~data["from"].str.contains(email)]
 	return data
 
