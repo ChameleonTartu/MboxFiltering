@@ -40,6 +40,12 @@ def search_for_questions(data, filter_out_emails, start_questions = ["How ", "Wh
 			for m in re.finditer(start_question + ".+\?", str(body)):
 				questions[message_sender][body[m.start():m.end()]] = 1
 		
+	with open("Question.csv", "wb") as question_out:
+		for key, value in questions.iteritems():
+			question_out.write(key + "\r\n")
+			for k in value.keys():
+				question_out.write(k + "\r\n")
+		
 	return questions
 
 def write_questions(questions):
