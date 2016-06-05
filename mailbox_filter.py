@@ -72,6 +72,8 @@ def throw_exception(message):
 	sys.exit()
 
 def retrieve_data_from(filename):
+	if not os.path.isfile(filename):
+		throw_exception("Mailbox csv file does not exist!")
 	if os.stat(filename).st_size == 0:
 		throw_exception("Mailbox csv file is empty!")
 	data = pd.read_csv(filename, sep = ",", header = None)
