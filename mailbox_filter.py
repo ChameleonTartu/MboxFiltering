@@ -9,6 +9,7 @@ import sys
 import re
 from collections import defaultdict
 import csv
+import os
 
 def search_for_phrases_in(questions, phrases):
 	phrases_count = defaultdict(lambda: 0)
@@ -19,7 +20,16 @@ def search_for_phrases_in(questions, phrases):
 					phrases_count[phrase] += amount
 	return phrases_count 
 
-def search_for_questions(data, filter_out_emails, start_questions = ["How ", "Why ", "What ", "Where "]):
+def write_questions_to(questions, filename = "Question.csv"):
+	with open(filename, "wb") as question_out:
+		for key, value in questions.iteritems():
+			question_out.write(key + "\r\n")
+			for k in value.keys():
+				question_out.write(k + "\r\n")
+	return None	
+
+
+def search_for_questions(data, filter_out_emails, start_questions = ["How ", "Why ", "What ", "Where ", "Is ", "Are ", "Do ", "Does ", "When ", "Did ", "Have ", "Will ", "Had ", "Was ", "Where ", "Shall ", "Would ", "Should ", "Could ", "Who ", "Which ", "Didn't ", "Haven't ", "Hadn't ", "Wouldn't ", "Shouldn't ", "Couldn't ", "Can ", "May ", "Aren't ", "Isn't ", "Weren't ", "Wasn't ", "Cannot ", "Can't "]):
 	questions = defaultdict(lambda: dict())
 	for index in range(data.shape[0]):
 		body = str(data.iloc[index].values[-1])
@@ -41,12 +51,7 @@ def search_for_questions(data, filter_out_emails, start_questions = ["How ", "Wh
 			for m in re.finditer(start_question + ".+\?", str(body)):
 				questions[message_sender][body[m.start():m.end()]] = 1
 		
-	with open("Question.csv", "wb") as question_out:
-		for key, value in questions.iteritems():
-			question_out.write(key + "\r\n")
-			for k in value.keys():
-				question_out.write(k + "\r\n")
-		
+		write_questions_to(questions)	
 	return questions
 
 def write_questions(questions):
@@ -62,32 +67,65 @@ def filter_data_by(filter_out_emails, data):
 		data = data[~data["from"].str.contains(email)]
 	return data
 
+def throw_exception(message):
+	print message
+	sys.exit()
+
+def retrieve_data_from(filename):
+	if os.stat(filename).st_size == 0:
+		throw_exception("Mailbox csv file is empty!")
+	data = pd.read_csv(filename, sep = ",", header = None)
+	if data.shape[1] != 4:
+		throw_exception("Mailbox csv file is inccorrect!")
+	data.columns = ["subject", "from", "date", "body"]
+	return data	
+	
+def retrieve_filter_out_emails_from(filename):
+	if not os.path.isfile(filename):
+		throw_exception("Filter out csv file does not exist!")
+
+	with open(filename, "rb") as filter_file:
+		reader = csv.reader(filter_file, delimiter = ',')
+		filter_out_emails = ["".join([word.strip() for word in line]) for line in reader]
+	
+	return filter_out_emails		
+
+def retrieve_phrases_from(filename):
+	phrases = defaultdict(lambda: 0)
+					
+	if not os.path.isfile(filename):
+		throw_exception("File with predefined phrases does not exist!")
+
+	with open(filename, "rb") as phrases_file:
+		reader = csv.reader(phrases_file, delimiter = '|')
+		phrases = ["".join([word.strip() for word in line]) for line in reader]
+	if len(phrases) == 0:
+		throw_exception("File with phrases is empty")	
+	return phrases
+
+def write_phrases_to(phrases_frame, filename = "phrase_occurances.csv"):
+	file_name = filename
+	if len(sys.argv) > 4:
+		file_name = sys.argv[4]
+		phrases_frame.sort(["phrase", "occurance"], ascending = [1, 1], inplace = True)
+	phrases_frame.to_csv(file_name, sep=",", index = False, header = True)
 
 def main():
 	if len(sys.argv) > 2:
-		data = pd.read_csv(sys.argv[1], sep = ",", header = None)
-		data.columns = ["subject", "from", "date", "body"]
-
-		with open(sys.argv[2], "rb") as filter_file:
-			reader = csv.reader(filter_file, delimiter = ',')
-			filter_out_emails = [line[0].strip() for line in reader]
-		
+		data = retrieve_data_from(sys.argv[1])	
+		filter_out_emails = retrieve_filter_out_emails_from(sys.argv[2])
 		data = filter_data_by(filter_out_emails, data)
 		questions = search_for_questions(data, filter_out_emails)
 		write_questions(questions)
 
 		if len(sys.argv) > 3:
-			phrases = defaultdict(lambda: 0)
-			with open(sys.argv[3], "rb") as phrases_file:
-				reader = csv.reader(phrases_file, delimiter = ',')
-				phrases = [line[0].strip() for line in reader]
-			phrases = search_for_phrases_in(questions, phrases)	
+			phrases = retrieve_phrases_from(sys.argv[3])
+			phrases = search_for_phrases_in(questions, phrases)
+			exit()	
 			phrases_frame = pd.DataFrame(dict(phrases).items(), columns = ["phrase", "occurance"])
-			file_name = "phrase_occurances.csv"
-			if len(sys.argv) > 4:
-				file_name = sys.argv[4]
-			phrases_frame.sort(["phrase", "occurance"], ascending = [1, 1], inplace = True)
-			phrases_frame.to_csv(file_name, sep=",", index = False, header = True)
+			
+			write_phrases_to(phrases_frame)
+			
 
 if __name__ == "__main__":
 	main()
