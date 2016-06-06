@@ -43,12 +43,12 @@ def search_for_questions(data, filter_out_emails, start_questions = ["How ", "Wh
 				body = body[:m.start()]
 				break
 		message_from = data.iloc[index].values[1]
-		for m in re.finditer("<.+@.+>", message_from):
+		for m in re.finditer("<\S+@\S+>", message_from):
 			message_sender = message_from[m.start() + 1: m.end() - 1]
 			break
 
 		for start_question in start_questions:
-			for m in re.finditer(start_question + ".+\?", str(body)):
+			for m in re.finditer(start_question + ".+?\?", str(body)):
 				questions[message_sender][body[m.start():m.end()]] = 1
 		
 		write_questions_to(questions)	
