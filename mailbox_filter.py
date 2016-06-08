@@ -29,7 +29,7 @@ def write_questions_to(questions, filename = "Question.csv"):
 	return None	
 
 
-def search_for_questions(data, filter_out_emails, start_questions = ["How ", "Why ", "What ", "Where ", "Is ", "Are ", "Do ", "Does ", "When ", "Did ", "Have ", "Will ", "Had ", "Was ", "Where ", "Shall ", "Would ", "Should ", "Could ", "Who ", "Which ", "Didn't ", "Haven't ", "Hadn't ", "Wouldn't ", "Shouldn't ", "Couldn't ", "Can ", "May ", "Aren't ", "Isn't ", "Weren't ", "Wasn't ", "Cannot ", "Can't "]):
+def search_for_questions(data, filter_out_emails, start_questions = ["How", "Why", "What", "Where", "Is", "Are", "Do", "Does", "When", "Did", "Have", "Will", "Had", "Was", "Where", "Shall", "Would", "Should", "Could", "Who", "Which", "Didn't", "Haven't", "Hadn't", "Wouldn't", "Shouldn't", "Couldn't", "Can", "May", "Aren't", "Isn't", "Weren't", "Wasn't", "Cannot", "Can't"]):
 	questions = defaultdict(lambda: dict())
 	for index in range(data.shape[0]):
 		body = str(data.iloc[index].values[-1])
@@ -48,7 +48,7 @@ def search_for_questions(data, filter_out_emails, start_questions = ["How ", "Wh
 			break
 
 		for start_question in start_questions:
-			for m in re.finditer(start_question + ".+?\?", str(body)):
+			for m in re.finditer(start_question +  + "\s.+?\?", str(body)):
 				questions[message_sender][body[m.start():m.end()]] = 1
 		
 		write_questions_to(questions)	
