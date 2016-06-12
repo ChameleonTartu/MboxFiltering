@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 # Arguments:
 # <sample_mbox.csv> <filter_out.csv> <phrases.csv> <file_to_write_occurances_of_phrases.csv>(by default "phrase_occurances.csv")
@@ -9,7 +10,8 @@ import sys
 import re
 from collections import defaultdict
 import csv
-import os
+from os import stat, path
+import io
 
 def search_for_phrases_in(questions, phrases):
 	phrases_count = defaultdict(lambda: 0)
@@ -21,18 +23,19 @@ def search_for_phrases_in(questions, phrases):
 	return phrases_count 
 
 def write_questions_to(questions, filename = "Question.csv"):
-	with open(filename, "wb") as question_out:
+	with io.open(filename, "w", encoding="utf-8") as question_out:
 		for key, value in questions.iteritems():
-			question_out.write(key + "\r\n")
+			question_out.write(key + u"\r\n")
 			for k in value.keys():
-				question_out.write(k + "\r\n")
+				question_out.write(k + u"\r\n")
 	return None	
 
 
-def search_for_questions(data, filter_out_emails, start_questions = ["How", "Why", "What", "Where", "Is", "Are", "Do", "Does", "When", "Did", "Have", "Will", "Had", "Was", "Where", "Shall", "Would", "Should", "Could", "Who", "Which", "Didn't", "Haven't", "Hadn't", "Wouldn't", "Shouldn't", "Couldn't", "Can", "May", "Aren't", "Isn't", "Weren't", "Wasn't", "Cannot", "Can't"]):
+def search_for_questions(data, filter_out_emails, start_questions = [u"How", u"Why", u"What", u"Where", u"Is", u"Are", u"Do", u"Does", u"When", u"Did", u"Have", u"Will", u"Had", u"Was", u"Where", u"Shall", u"Would", u"Should", u"Could", u"Who", u"Which", u"Didn't", u"Haven't", u"Hadn't", u"Wouldn't", u"Shouldn't", u"Couldn't", u"Can", u"May", u"Aren't", u"Isn't", u"Weren't", u"Wasn't", u"Cannot", u"Can't", u"Что"]):
 	questions = defaultdict(lambda: dict())
 	for index in range(data.shape[0]):
 		body = str(data.iloc[index].values[-1])
+		body = unicode(body, "utf-8")
 		for email in filter_out_emails:
 			email = str(email).strip()
 			if email[0:2] == "*@":
@@ -48,22 +51,22 @@ def search_for_questions(data, filter_out_emails, start_questions = ["How", "Why
 			break
 
 		for start_question in start_questions:
-			for m in re.finditer(start_question +  + "\s.+?\?", str(body)):
+			for m in re.finditer(start_question +  u"\s.+?\?", body):
 				questions[message_sender][body[m.start():m.end()]] = 1
 		
 		write_questions_to(questions)	
 	return questions
 
 def write_questions(questions):
-	with open("FAQ.csv", "wb") as write_questions:
+	with io.open("FAQ.csv", "w", encoding="utf-8") as write_questions:
 		for client_mail, client_questions in questions.iteritems():
-			[write_questions.write(question + "\r\n") for question in client_questions.keys()]
+			[write_questions.write(question + u"\r\n") for question in client_questions.keys()]
 	return None
 
 def filter_data_by(filter_out_emails, data):
 	for email in filter_out_emails:
 		if email[0:2] == "*@":
-			email = str(email[1:]).strip()
+			email = email[1:]
 		data = data[~data["from"].str.contains(email)]
 	return data
 
@@ -72,9 +75,9 @@ def throw_exception(message):
 	sys.exit()
 
 def retrieve_data_from(filename):
-	if not os.path.isfile(filename):
+	if not path.isfile(filename):
 		throw_exception("Mailbox csv file does not exist!")
-	if os.stat(filename).st_size == 0:
+	if stat(filename).st_size == 0:
 		throw_exception("Mailbox csv file is empty!")
 	data = pd.read_csv(filename, sep = ",", header = None)
 	if data.shape[1] != 4:
@@ -83,10 +86,10 @@ def retrieve_data_from(filename):
 	return data	
 	
 def retrieve_filter_out_emails_from(filename):
-	if not os.path.isfile(filename):
+	if not path.isfile(filename):
 		throw_exception("Filter out csv file does not exist!")
 
-	with open(filename, "rb") as filter_file:
+	with io.open(filename, "r", encoding="utf-8") as filter_file:
 		reader = csv.reader(filter_file, delimiter = ',')
 		filter_out_emails = ["".join([word.strip() for word in line]) for line in reader]
 	
@@ -95,10 +98,10 @@ def retrieve_filter_out_emails_from(filename):
 def retrieve_phrases_from(filename):
 	phrases = defaultdict(lambda: 0)
 					
-	if not os.path.isfile(filename):
+	if not path.isfile(filename):
 		throw_exception("File with predefined phrases does not exist!")
 
-	with open(filename, "rb") as phrases_file:
+	with io.open(filename, "r", encoding= "utf-8") as phrases_file:
 		reader = csv.reader(phrases_file, delimiter = '|')
 		phrases = ["".join([word.strip() for word in line]) for line in reader]
 	if len(phrases) == 0:
