@@ -7,6 +7,7 @@
 import mailbox
 import csv
 import sys
+import io
 
 
 from mailbox_filter import throw_exception
@@ -20,7 +21,7 @@ def more_payloads(message):
 			body += more_payloads(payload)
 	else:
 		if message.get_content_type() == 'text/plain':
-			body = message.get_payload(decode=True)
+			body = message.get_payload(decode=False)
 	return body
 
 def main():

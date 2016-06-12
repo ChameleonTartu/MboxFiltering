@@ -31,11 +31,17 @@ def write_questions_to(questions, filename = "Question.csv"):
 	return None	
 
 
-def search_for_questions(data, filter_out_emails, start_questions = [u"How", u"Why", u"What", u"Where", u"Is", u"Are", u"Do", u"Does", u"When", u"Did", u"Have", u"Will", u"Had", u"Was", u"Where", u"Shall", u"Would", u"Should", u"Could", u"Who", u"Which", u"Didn't", u"Haven't", u"Hadn't", u"Wouldn't", u"Shouldn't", u"Couldn't", u"Can", u"May", u"Aren't", u"Isn't", u"Weren't", u"Wasn't", u"Cannot", u"Can't", u"Что"]):
+def search_for_questions(data, filter_out_emails, start_questions = [u"How", u"Why", u"What", u"Where", u"Is", u"Are", u"Do", u"Does", u"When", u"Did", u"Have", u"Will", u"Had", u"Was", u"Where", u"Shall", u"Would", u"Should", u"Could", u"Who", u"Which", u"Didn't", u"Haven't", u"Hadn't", u"Wouldn't", u"Shouldn't", u"Couldn't", u"Can", u"May", u"Aren't", u"Isn't", u"Weren't", u"Wasn't", u"Cannot", u"Can't", u"Что", u"Где", u"Когда", u"Почему"]):
 	questions = defaultdict(lambda: dict())
 	for index in range(data.shape[0]):
 		body = str(data.iloc[index].values[-1])
-		body = unicode(body, "utf-8")
+		try:
+			body = unicode(body, "utf-8")
+		except UnicodeDecodeError as e:
+			try:
+				body = unicode(body, "latin-1")
+			except UnicodeDecodeError as e:
+				throw_exception("You have text which cannot be encoded nor utf-8, nor latin-1!")
 		for email in filter_out_emails:
 			email = str(email).strip()
 			if email[0:2] == "*@":
